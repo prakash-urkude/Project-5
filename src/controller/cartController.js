@@ -81,7 +81,7 @@ const createCart = async function (req, res) {
           quantity:quantity
       }
       totalPrice= carted.totalPrice+(findProduct.price)*quantity
-      totalItems= carted.totalItems+quantity
+      totalItems= carted.totalItems+1
       let updatedCart= await cartModel.findOneAndUpdate({_id:carted._id},{$push:{items:obj},totalPrice:totalPrice, totalItems:totalItems},{new:true})
       return res.status(200).send({status:true, message:"Success", data:updatedCart})
       }
@@ -93,7 +93,7 @@ const createCart = async function (req, res) {
           quantity:quantity
       }],
       totalPrice:findProduct.price*quantity,
-      totalItems: quantity
+      totalItems: 1
       }
       
       let newcart= await cartModel.create(store)
