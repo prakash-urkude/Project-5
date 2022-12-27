@@ -15,8 +15,7 @@ const {authentication,authorization}=require("../middleware/auth")
 
 //  ..............................................Product API.........................................................
 router.post("/products",productController.createProduct)
-
-router.get("/products",productController.getAllProducts)//v
+router.get("/products",productController.getAllProducts)
 router.get("/products/:productId",productController.getDetailsFromParam)
 router.put("/products/:productId",productController.updateProduct)
 router.delete("/products/:productId",productController.deleteById)
