@@ -1,5 +1,4 @@
 const { isValidName, forName, isValidEmail, isValidNumber, isValidPassword, isValidObjectId, isValidPincode } = require('../validator/validation.js')
-const { sign } = require("jsonwebtoken")
 const userModel = require('../models/usermodel.js')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
@@ -177,7 +176,7 @@ const logIn = async function (req, res) {
         }
 
         const userId = user._id.toString()
-        const token = sign(
+        const token = jwt.sign(
             {
                 userId: userId
             }, "productManagementKey",
