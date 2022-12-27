@@ -49,7 +49,7 @@ const createCart = async function (req, res) {
       }
       let findProduct= await productModel.findOne({_id:productId, isDeleted:false})
       if(!findProduct){
-          return res.status(404).send({status:false, message: "this product does not exist."})
+          return res.status(404).send({status:false, message: "this product does not exist ."})
       }
       
       let carted= await cartModel.findOne({userId:userId})
@@ -169,7 +169,7 @@ const updateCart=async function(req,res){
            {$pull:{"items":{productId:productId}},$inc:{totalPrice:-product.price,totalItems:-1}},
             {new:true}
         )
-      return res.status(200).send({status:true,message:"updated successfully",data:updatedCart})
+      return res.status(200).send({status:true,message:"updated Successfully",data:updatedCart})
       }
       else if(cart.items[i].quantity>1){
         const updatedCart=await cartModel.findOneAndUpdate(
@@ -177,7 +177,7 @@ const updateCart=async function(req,res){
           {$inc:{"items.$.quantity":-1,totalPrice:-product.price}},
           {new:true}
         )
-        return res.status(200).send({status:true,message:"updated successfully",data:updatedCart})
+        return res.status(200).send({status:true,message:"updated Successfully",data:updatedCart})
        }
     }
     else if(i==cart.items.length-1){
@@ -197,7 +197,7 @@ const updateCart=async function(req,res){
          {$pull:{"items":{productId:productId}},$inc:{totalPrice:(-cart.items[i].quantity)*(product.price),totalItems:-1}},
           {new:true}
           )
-          return res.status(200).send({status:true,message:"updated successfully",data:updatedCart})
+          return res.status(200).send({status:true,message:"updated Successfully",data:updatedCart})
     }
     else if(i==cart.items.length-1){
       return res.status(404).send({status:false,message:"this product does not exist in this cart"})
@@ -234,7 +234,7 @@ const deleteCart = async function(req,res){
     
       const cardExist = await cartModel.findOneAndUpdate({userId:userId},{$set:{totalItems:0,totalPrice:0,items:[],deletedAt:new Date()}});
       console.log(cardExist)
-      if(cardExist)return res.status(204).send({status:true,message:"success",data:cardExist})
+      if(cardExist)return res.status(204).send({status:true,message:"Success",data:cardExist})
       else{ return res.status(404).send({status:true,message:"not found"})}
 
   }catch(err){

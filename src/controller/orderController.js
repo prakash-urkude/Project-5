@@ -42,7 +42,7 @@ const createOrder = async (req, res) => {
     obj.totalQuantity = totalQuantity;
 
     let createdata = await orderModel.create(obj);
-    return res.status(201).send({ status: true, data: createdata });
+    return res.status(201).send({ status: true, message:"Success", data: createdata });
   } catch (err) {
     res.status(500).send({ status: false, error: err.message });
   }
