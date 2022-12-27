@@ -1,7 +1,5 @@
 const productModel = require("../models/productModel")
-
 const { isValidName, isValidNumber,isValidAvailableSizes,isValidObjectId } = require("../validator/validation")
-
 const aws = require("aws-sdk")
 
 aws.config.update({
@@ -34,60 +32,62 @@ let uploadFile = async (file) => {
     })
 }
 
+//............................................................. POST API .............................................................................
+
 const createProduct = async function (req, res) {
     try {
         const data = req.body
         const { title, description, price, currencyId, currencyFormat, availableSizes, installments } = data
 
         if (Object.keys(data).length == 0) {
-            return res.status(400).send({ status: false, msg: "no data provided" })
+            return res.status(400).send({ status: false, message: "no data provided" })
         }
 
         if (!title) {
-            return res.status(400).send({ status: false, msg: "please provide title" })
+            return res.status(400).send({ status: false, message: "please provide title" })
         }
         if (!isValidName(title)) {
-            return res.status(400).send({ status: false, msg: "please provide valid title" })
+            return res.status(400).send({ status: false, message: "please provide valid title" })
         }
 
         const duplicateTitle = await productModel.findOne({ title: title })
 
         if (duplicateTitle) {
-            return res.status(409).send({ status: false, msg: "title is already exist" })
+            return res.status(409).send({ status: false, message: "title is already exist" })
         }
 
         if (!description) {
-            return res.status(400).send({ status: false, msg: "please provide description" })
+            return res.status(400).send({ status: false, message: "please provide description" })
         }
 
         if (!isValidName(description)) {
-            return res.status(400).send({ status: false, msg: "please provide valid description" })
+            return res.status(400).send({ status: false, message: "please provide valid description" })
         }
 
 
         if (!price) {
-            return res.status(400).send({ status: false, msg: "please provide price" })
+            return res.status(400).send({ status: false, message: "please provide price" })
         }
 
         data.price = Number(price)
         if (isNaN(price)) {
-            return res.status(400).send({ status: false, msg: "please provide  valid price" })
+            return res.status(400).send({ status: false, message: "please provide  valid price" })
         }
 
         if (!currencyId) {
-            return res.status(400).send({ status: false, msg: "please provide currency Id" })
+            return res.status(400).send({ status: false, message: "please provide currency Id" })
         }
 
         if (currencyId !== "INR") {
-            return res.status(400).send({ status: false, msg: "invalid currency id" })
+            return res.status(400).send({ status: false, message: "invalid currency id" })
         }
 
         if (!currencyFormat) {
-            return res.status(400).send({ status: false, msg: "please provide currency format" })
+            return res.status(400).send({ status: false, message: "please provide currency format" })
         }
 
         if (currencyFormat !== "₹") {
-            return res.status(400).send({ status: false, msg: "please provide valid currency format" })
+            return res.status(400).send({ status: false, message: "please provide valid currency format" })
         }
 
         let files = req.files
@@ -96,11 +96,11 @@ const createProduct = async function (req, res) {
             data.productImage = uploadedFileURL
         }
         else {
-            return res.status(400).send({ msg: "No file found" })
+            return res.status(400).send({ message: "No file found" })
         }
 
         if (!data.productImage) {
-            return res.status(400).send({ status: false, msg: "please provide product image" })
+            return res.status(400).send({ status: false, message: "please provide product image" })
         }
 
 
@@ -108,13 +108,13 @@ const createProduct = async function (req, res) {
         if (availableSizes) {
             data.availableSizes = JSON.parse(availableSizes)
             if (!Array.isArray(data.availableSizes) || data.availableSizes.length == 0) {
-                return res.status(400).send({ status: false, msg: "please provide valid sizes" })
+                return res.status(400).send({ status: false, message: "please provide valid sizes" })
             }
             const arrayEnum = ["S", "XS", "M", "X", "L", "XXL", "XL"]
 
             for (let i = 0; i < data.availableSizes.length; i++) {
                 if (!arrayEnum.includes(data.availableSizes[i])) {
-                    return res.status(400).send({ status: false, msg: "please provide valid sizes" })
+                    return res.status(400).send({ status: false, message: "please provide valid sizes" })
                 }
             }
         }
@@ -122,17 +122,20 @@ const createProduct = async function (req, res) {
         if (installments) {
             data.installments = Number(installments)
             if (isNaN(installments)) {
-                return res.status(400).send({ status: false, msg: "please provide valid installment number" })
+                return res.status(400).send({ status: false, message: "please provide valid installment number" })
             }
         }
         const product = await productModel.create(data)
-        return res.status(201).send({ status: true, msg: "success", data: product })
+        return res.status(201).send({ status: true, message: "success", data: product })
 
     }
     catch (error) {
-        return res.status(500).send({ status: false, msg: error.message })
+        return res.status(500).send({ status: false, message: error.message })
     }
 }
+
+//............................................................. GET API .............................................................................
+//............................................................. GET FILTERED PRODUCTS .............................................................................
 
 const getAllProducts = async function (req, res) {
     try {
@@ -196,6 +199,8 @@ const getAllProducts = async function (req, res) {
     return res.status(500).send({ status: false, message: "Internal Server Error" })
 }}
 
+//............................................................. GET API .............................................................................
+//............................................................. GET PRODUCT BY ID .............................................................................
 
 const getDetailsFromParam = async function (req, res) {
 
@@ -215,57 +220,9 @@ const getDetailsFromParam = async function (req, res) {
     }
 }
 
-const getFilteredProducts=async function(req,res){
-    const data=req.query
-    const {size,name,priceGreaterThan,priceLessThan,priceSort}=data
-
-    let filterObject={isDeleted:false}
-    let sortObject={}
-
-    if(size){
-        if( !(["S", "XS", "M", "X", "L", "XXL", "XL"]).includes(size)){
-         return res.status(400).send({status:false,msg:"provide valid size"})   
-        }
-        filterObject.availableSizes=size
-    }
-
-    if(name){
-        if(!isValidName(name)){
-            return res.status(400).send({status:false,msg:"provide valid name"})    
-        }
-        filterObject.title={$regex:name,$options:"i"}
-
-    }
-    if(priceGreaterThan){
-        if(isNaN(Number(priceGreaterThan))){
-            return res.status(400).send({status:false,msg:"provide valid price"})   
-        }
-        filterObject.price={$gt:Number(priceGreaterThan)}
-    }
-    if(priceLessThan){
-        if(isNaN(Number(priceLessThan))){
-            return res.status(400).send({status:false,msg:"provide valid price"})   
-        }
-        filterObject.price={$lt:Number(priceLessThan)}
-    }
-
-    if(priceSort){
-        if(!(["1","-1"]).includes(priceSort)){
-            return res.status(400).send({status:false,msg:"provide valid syntax for sorting"})     
-        }
-        sortObject.price=Number(priceSort)
-    }
-
-    const products=await productModel.find(filterObject).sort(sortObject)
-
-    if(products.length==0){
-        return res.status(404).send({status:false,msg:"no product found"})
-    }
-    return res.status(200).send({status:true,msg:"data fetched successfully",data:products})
-}
 
 
-//_______________________________________update product____________________________________________//
+//............................................................. UPDATE API .............................................................................
 
 const updateProduct = async function(req,res){
     try{
@@ -279,7 +236,7 @@ const updateProduct = async function(req,res){
         const{title,description,price,currencyId,currencyFormat,isFreeShipping,style,availableSizes,installments} = data
 
         if(!isValidObjectId(productId)){
-            return res.status(400).send({status:false,msg:"provide valid product id"})
+            return res.status(400).send({status:false,message:"provide valid product id"})
         }
 
         const product=await productModel.findOne({_id:productId,isDeleted:false})
@@ -293,7 +250,7 @@ const updateProduct = async function(req,res){
 
             const duplicateTitle=await productModel.findOne({title:title})
             if(duplicateTitle){
-                return res.status(409).send({status:false,msg:"title is already exist"})
+                return res.status(409).send({status:false,message:"title is already exist"})
             }
             update.title=title
         }
@@ -313,7 +270,7 @@ const updateProduct = async function(req,res){
             update.currencyId=currencyId
         }
         if(currencyFormat){
-            if(currencyFormat!=="₹"){return res.status(400).send({status:false,msg:"currency format must be '₹'"}) }
+            if(currencyFormat!=="₹"){return res.status(400).send({status:false,message:"currency format must be '₹'"}) }
             update.currencyFormat=currencyFormat
         }
         if (isFreeShipping) {
@@ -335,13 +292,13 @@ const updateProduct = async function(req,res){
         if (availableSizes) {
             data.availableSizes = JSON.parse(availableSizes)
             if (!Array.isArray(data.availableSizes) || data.availableSizes.length == 0) {
-                return res.status(400).send({ status: false, msg: "please provide valid sizes" })
+                return res.status(400).send({ status: false, message: "please provide valid sizes" })
             }
             const arrayEnum = ["S", "XS", "M", "X", "L", "XXL", "XL"]
 
             for (let i = 0; i < data.availableSizes.length; i++) {
                 if (!arrayEnum.includes(data.availableSizes[i])) {
-                    return res.status(400).send({ status: false, msg: "please provide valid sizes" })
+                    return res.status(400).send({ status: false, message: "please provide valid sizes" })
                 }
             }
 
@@ -363,6 +320,7 @@ const updateProduct = async function(req,res){
     }
 }
 
+//............................................................. DELETE API .............................................................................
 
 const deleteById = async function (req, res) {
 

@@ -3,6 +3,8 @@ const cartModel = require("../models/cartModel");
 const orderModel = require("../models/orderModel");
 const { isValidObjectId, isValidName } = require("../validator/validation");
 
+//............................................................. POST API .............................................................................
+
 const createOrder = async (req, res) => {
   try {
     let data = req.body;
@@ -17,7 +19,7 @@ const createOrder = async (req, res) => {
     if (!isValidObjectId(UserId)) return res.status(400).send({ status: false, message: "userID is not valid" });
     
     const checkUser = await userModel.findOne({ _id: UserId });
-    if (!checkUser) return res.satus(404).send({ status: false, msg: "User doesn't exist" });
+    if (!checkUser) return res.satus(404).send({ status: false, message: "User doesn't exist" });
       
     let cartDetail = await cartModel.findOne({ _id: data.cartId });
     if (!cartDetail) return res.status(404).send({ status: false, message: "Cart does not exist" });
@@ -46,6 +48,8 @@ const createOrder = async (req, res) => {
   }
 };
 
+//............................................................. UPDATE API .............................................................................
+
 const updateOrder = async function (req, res) {
     try {
   
@@ -61,7 +65,7 @@ const updateOrder = async function (req, res) {
       }
 
       if(status==="pending"){
-        return res.status(400).send({status:false,msg:"order is already in pending status"})
+        return res.status(400).send({status:false,message:"order is already in pending status"})
       }
   
       if (orderDetails.status === "completed") {
@@ -83,7 +87,7 @@ const updateOrder = async function (req, res) {
         return res.status(200).send({status: true,message: "Success",data: orderStatus,});
       }
        catch (error) {
-      res.status(500).send({ status: false, error: error.message });
+      res.status(500).send({ status: false, message: error.message });
     }
   };
   

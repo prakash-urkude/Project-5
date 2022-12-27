@@ -5,8 +5,7 @@ const productController=require("../controller/productController")
 const cartController=require("../controller/cartController")
 const orderController=require("../controller/orderController")
 const {authentication,authorization}=require("../middleware/auth")
-const aws= require("aws-sdk");
-const { APIGateway } = require('aws-sdk');
+
 // .................................................. Users Api ....................................................................
  router.post('/register', usercontroller.registerUser)
  router.post('/login', usercontroller.logIn)
