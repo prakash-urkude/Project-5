@@ -8,7 +8,6 @@ const { isValidObjectId, isValidName } = require("../validator/validation");
 const createOrder = async (req, res) => {
   try {
     let data = req.body;
-    let {status}=data
     let UserId = req.params.userId;
 
     if (!data.cartId||!isValidName(data.cartId)) return res.status(400).send({ staus: false, message: "Please Provide CardId" });
